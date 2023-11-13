@@ -7,6 +7,7 @@ import java.util.function.BiConsumer;
 /**
  * A simple implementation of binary search trees.
  */
+@SuppressWarnings("unused")
 public class SimpleBST<K, V> implements SimpleMap<K, V> {
 
   // +--------+------------------------------------------------------
@@ -53,6 +54,7 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
    * not-very-clever default comparator.
    */
   public SimpleBST() {
+    //noinspection ComparatorCombinators
     this((k1, k2) -> k1.toString().compareTo(k2.toString()));
   } // SimpleBST()
 
@@ -61,27 +63,62 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
   // | SimpleMap methods |
   // +-------------------+
 
-  @Override
-  public V set(K key, V value) {
+  public V setRecursively(K key, V value) {
     if (key == null) {
       throw new NullPointerException();
     } // if
-    this.root = set(key, value, this.root);
+    this.root = setRecursively(key, value, this.root);
     return cachedValue;
   } // set(K,V)
 
-  private BSTNode<K, V> set(K key, V value, BSTNode<K, V> node) {
+  private BSTNode<K, V> setRecursively(K key, V value, BSTNode<K, V> node) {
     if (node == null) {
+      cachedValue = null;
+      this.size++;
       return new BSTNode<>(key, value);
-    } else if (key.toString().compareTo(node.key.toString()) < 0) {
-      node.left = set(key, value, node.left);
-    } else if (key.toString().compareTo(node.key.toString()) > 0) {
-      node.right = set(key, value, node.right);
+    } // if
+    int difference = key.toString().compareTo(node.key.toString());
+    if (difference < 0) {
+      node.left = setRecursively(key, value, node.left);
+    } else if (difference > 0) {
+      node.right = setRecursively(key, value, node.right);
     } // if/else
     cachedValue = node.value;
     node.value = value;
     return node;
   } // set(K,V)
+
+  @Override
+  public V set(K key, V value) {
+    if (key == null) {
+      throw new NullPointerException();
+    } // if
+    BSTNode<K, V> node = this.root;
+    while (node != null) {
+      int difference = key.toString().compareTo(node.key.toString());
+      if (difference < 0) {
+        if (node.left == null) {
+          node.left = new BSTNode<>(key, value);
+          node = null;
+        } else {
+          node = node.left;
+        } // if/else
+      } else if (difference > 0) {
+        if (node.right == null) {
+          node.right = new BSTNode<>(key, value);
+          node = null;
+        } else {
+          node = node.left;
+        } // if/else
+      } else {
+        cachedValue = node.value;
+        node.value = value;
+        return cachedValue;
+      } // if/else
+    } // while
+    this.root = new BSTNode<>(key, value);
+    return null;
+  } // set
 
   @Override
   public V get(K key) {
@@ -108,8 +145,8 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
 
   @Override
   public Iterator<K> keys() {
-    return new Iterator<K>() {
-      Iterator<BSTNode<K, V>> nit = SimpleBST.this.nodes();
+    return new Iterator<>() {
+      final Iterator<BSTNode<K, V>> nit = SimpleBST.this.nodes();
 
       @Override
       public boolean hasNext() {
@@ -130,8 +167,8 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
 
   @Override
   public Iterator<V> values() {
-    return new Iterator<V>() {
-      Iterator<BSTNode<K, V>> nit = SimpleBST.this.nodes();
+    return new Iterator<>() {
+      final Iterator<BSTNode<K, V>> nit = SimpleBST.this.nodes();
 
       @Override
       public boolean hasNext() {
@@ -186,7 +223,7 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
       if ((node.left != null) || (node.right != null)) {
         dump(pen, node.left, indent + "  ");
         dump(pen, node.right, indent + "  ");
-      } // if has children
+      } // if it has children
     } // else
   } // dump
 
@@ -209,13 +246,13 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
   } // get(K, BSTNode<K,V>)
 
   /**
-   * Get an iterator for all of the nodes. (Useful for implementing the
+   * Get an iterator for all the nodes. (Useful for implementing the
    * other iterators.)
    */
   Iterator<BSTNode<K, V>> nodes() {
     return new Iterator<BSTNode<K, V>>() {
 
-      Stack<BSTNode<K, V>> stack = new Stack<>();
+      final Stack<BSTNode<K, V>> stack = new Stack<>();
       boolean initialized = false;
 
 
