@@ -150,9 +150,7 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
       } else if (node.right == null) {
         node = node.left;
       } else {
-        BSTNode<K, V> removedNode = removeRecurse(node.left.key, node.left);
-        assert removedNode != null;
-        node.value = removedNode.value;
+        node = removeRecurse(node.left.key, node.left);
       } // if/else
       size--;
     } // if/else

@@ -1,4 +1,6 @@
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * A simple experiment with SimpleBSTs.
@@ -39,6 +41,14 @@ public class SimpleBSTExperiment {
     removeExperiment(pen, example, "vicuna"); // leaf?
     removeExperiment(pen, example, "koala"); // middle?
     removeExperiment(pen, example, "civet"); // root?
+
+    String[] balanced = {"horse", "dingo", "llama", "baboon", "fox", "jackal",
+        "narwhal", "aardvark", "civet", "emu", "gazelle", "impala", "koala",
+        "moose", "ocelot"};
+    Arrays.sort(balanced, String::compareTo);
+
+    pen.println("\nBalanced Array:\n\n" + Arrays.toString(balanced));
+
 
   } // main(String[])
 
