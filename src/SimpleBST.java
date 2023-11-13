@@ -82,9 +82,10 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
       node.left = setRecursively(key, value, node.left);
     } else if (difference > 0) {
       node.right = setRecursively(key, value, node.right);
+    } else {
+      cachedValue = node.value;
+      node.value = value;
     } // if/else
-    cachedValue = node.value;
-    node.value = value;
     return node;
   } // set(K,V)
 
@@ -99,16 +100,16 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
       if (difference < 0) {
         if (node.left == null) {
           node.left = new BSTNode<>(key, value);
-          node = null;
+          return null;
         } else {
           node = node.left;
         } // if/else
       } else if (difference > 0) {
         if (node.right == null) {
           node.right = new BSTNode<>(key, value);
-          node = null;
+          return null;
         } else {
-          node = node.left;
+          node = node.right;
         } // if/else
       } else {
         cachedValue = node.value;
@@ -117,8 +118,45 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
       } // if/else
     } // while
     this.root = new BSTNode<>(key, value);
+    cachedValue = null;
     return null;
   } // set
+
+  @Override
+  public V remove(K key) {
+    if (key == null) {
+      throw new NullPointerException();
+    } // if
+    this.root = removeRecurse(key, this.root);
+    return cachedValue;
+  } // remove()
+
+  private BSTNode<K, V> removeRecurse(K key, BSTNode<K, V> node) {
+    if (node == null) {
+      cachedValue = null;
+      return null;
+    } // if
+    int difference = key.toString().compareTo(node.key.toString());
+    if (difference < 0) {
+      node.left = removeRecurse(key, node.left);
+    } else if (difference > 0) {
+      node.right = removeRecurse(key, node.right);
+    } else {
+      cachedValue = node.value;
+      if (node.left == null && node.right == null) {
+        return null;
+      } else if (node.left == null) {
+        node = node.right;
+      } else if (node.right == null) {
+        node = node.left;
+      } else {
+        BSTNode<K, V> removedNode = removeRecurse(node.left.key, node.left);
+        node.value = removedNode.value;
+      } // if/else
+      size--;
+    } // if/else
+    return node;
+  } // remove()
 
   @Override
   public V get(K key) {
@@ -137,11 +175,6 @@ public class SimpleBST<K, V> implements SimpleMap<K, V> {
   public boolean containsKey(K key) {
     return false;       // STUB
   } // containsKey(K)
-
-  @Override
-  public V remove(K key) {
-    return null;        // STUB
-  } // remove(K)
 
   @Override
   public Iterator<K> keys() {
